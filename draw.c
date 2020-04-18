@@ -25,81 +25,119 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   c.green = rand() % 256;
   c.green = rand() % 256;
   int xt, yt, xm, ym, xb, yb;
+  double zt, zm, zbs;
   int xs[3] = {points->m[0][i], points->m[0][i+1],points->m[0][i+2]};
   int ys[3] = {points->m[1][i], points->m[1][i+1], points->m[1][i+2]};
-  printf("a: (%d, %d), (%d, %d), (%d, %d)\n", xs[0], ys[0], xs[1], ys[1], xs[2],ys[2]);
+  double zs[3] = {points->m[2][i], points->m[2][i+1], points->m[2][i+2]};
+  // printf("a: (%d, %d), (%d, %d), (%d, %d)\n", xs[0], ys[0], xs[1], ys[1], xs[2],ys[2]);
   if (ys[1] > ys[0]){
     if (ys[2] > ys[1]){
       xt = xs[2];
       yt = ys[2];
+      zt = zs[2];
       xm = xs[1];
       ym = ys[1];
+      zm = zs[1];
       xb = xs[0];
       yb = ys[0];
+      zbs = zs[0];
     }
     else if (ys[0] > ys[2]){
       xt = xs[1];
       yt = ys[1];
+      zt = zs[1];
       xm = xs[0];
       ym = ys[0];
+      zm = zs[0];
       xb = xs[2];
       yb = ys[2];
+      zbs = zs[2];
     }
     else {
       xt = xs[1];
       yt = ys[1];
+      zt = zs[1];
       xm = xs[2];
       ym = ys[2];
+      zm = zs[2];
       xb = xs[0];
       yb = ys[0];
+      zbs = zs[0];
     }
   }
   else {
     if (ys[2] > ys[0]){
       xt = xs[2];
       yt = ys[2];
+      zt = zs[2];
       xm = xs[0];
       ym = ys[0];
+      zm = zs[0];
       xb = xs[1];
       yb = ys[1];
+      zbs = zs[1];
     }
     else if (ys[1] > ys[2]){
       xt = xs[0];
       yt = ys[0];
+      zt = zs[0];
       xm = xs[1];
       ym = ys[1];
+      zm = zs[1];
       xb = xs[2];
       yb = ys[2];
+      zbs = zs[2];
     }
     else {
       xt = xs[0];
       yt = ys[0];
+      zt = zs[0];
       xm = xs[2];
       ym = ys[2];
+      zm = zs[2];
       xb = xs[1];
       yb = ys[1];
+      zbs = zs[1];
     }
   }
-  printf("b: (%d, %d), (%d, %d), (%d, %d)\n", xb, yb, xm, ym, xt, yt);
+  printf("b: (%d, %d, %0.2lf), (%d, %d, %0.2lf), (%d, %d, %0.2lf)\n", xb, yb, zbs, xm, ym, zm, xt, yt, zt);
   double x0 = xb;
   double x1 = xb;
   double y0 = yb;
+  double z0 = zbs;
+  double z1 = zbs;
   double dx0 = (double)(xt - xb) / (yt - yb);
   double dx1 = (double)(xm - xb) / (ym - yb);
   double dx1_1 = (double)(xt - xm) / (yt - ym);
-  printf(" %0.2lf %0.2lf %0.2lf\n", dx0, dx1, dx1_1);
+  double dz0 = (double)(zt - zbs) / (yt - yb);
+  double dz1 = (double)(zm - zbs) / (ym - yb);
+  double dz1_1 = (double)(zt - zm) / (yt - ym);
+  printf(" %0.2lf %0.2lf\n", dz0, dz1_1);
+  printf("(%0.2lf %0.2lf)\n", z0, z1);
   if (y0 == ym){
     x1 = xm;
     dx1 = dx1_1;
+    z1 = zm;
+    dz1 = dz1_1;
   }
   while (y0 <= yt){
-    draw_line(x0, y0, 0, x1, y0, 0, s, zb, c);
+    draw_line(x0, y0, z0, x1, y0, z1, s, zb, c);
+    // printf("c: (%0.2lf, %0.2lf)\n", z0, z1);
     x0 += dx0;
     x1 += dx1;
+    z0 += dz0;
+    z1 += dz1;
+    // printf("b: (%0.2lf, %0.2lf)\n", z0, z1);
     y0++;
     if (y0 >= ym && yt!= ym && dx1 != dx1_1){
-      dx1 = dx1_1;
-      x1 = xm;
+      if (dx1 != dx1_1){
+        dx1 = dx1_1;
+        x1 = xm;
+      }
+      if (dz1 != dz1_1){
+        dz1 = dz1_1;
+        z1 = zm;
+      }
     }
   }
 
@@ -621,27 +659,32 @@ void draw_line(int x0, int y0, double z0,
   int x, y, d, A, B;
   int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
   int loop_start, loop_end;
+  double z, dz;
 
   //swap points if going right -> left
-  int xt, yt;
+  int xt, yt, zt;
   if (x0 > x1) {
     xt = x0;
     yt = y0;
+    zt = z0;
     x0 = x1;
     y0 = y1;
     z0 = z1;
     x1 = xt;
     y1 = yt;
+    z1 = zt;
   }
 
   x = x0;
   y = y0;
+  z = z0;
   A = 2 * (y1 - y0);
   B = -2 * (x1 - x0);
   int wide = 0;
   int tall = 0;
   //octants 1 and 8
   if ( abs(x1 - x0) >= abs(y1 - y0) ) { //octant 1/8
+    dz = (double)(z1 - z0)/(x1 - x0);
     wide = 1;
     loop_start = x;
     loop_end = x1;
@@ -660,6 +703,7 @@ void draw_line(int x0, int y0, double z0,
     }
   }//end octant 1/8
   else { //octant 2/7
+    dz = (double)(z1 - z0)/(y1 - y0);
     tall = 1;
     dx_east = 0;
     dx_northeast = 1;
@@ -683,7 +727,7 @@ void draw_line(int x0, int y0, double z0,
 
   while ( loop_start < loop_end ) {
 
-    plot( s, zb, c, x, y, 0);
+    plot( s, zb, c, x, y, z);
     if ( (wide && ((A > 0 && d > 0) ||
                    (A < 0 && d < 0)))
          ||
@@ -698,7 +742,8 @@ void draw_line(int x0, int y0, double z0,
       y+= dy_east;
       d+= d_east;
     }
+    z += dz;
     loop_start++;
   } //end drawing loop
-  plot( s, zb, c, x1, y1, 0 );
+  plot( s, zb, c, x1, y1, z );
 } //end draw_line
