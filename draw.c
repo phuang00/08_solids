@@ -745,5 +745,5 @@ void draw_line(int x0, int y0, double z0,
     z += dz;
     loop_start++;
   } //end drawing loop
-  plot( s, zb, c, x1, y1, z );
+  plot( s, zb, c, x1, y1, z1 );
 } //end draw_line
