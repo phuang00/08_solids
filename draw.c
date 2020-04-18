@@ -100,7 +100,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
       zbs = zs[1];
     }
   }
-  printf("b: (%d, %d, %0.2lf), (%d, %d, %0.2lf), (%d, %d, %0.2lf)\n", xb, yb, zbs, xm, ym, zm, xt, yt, zt);
+  // printf("b: (%d, %d, %0.2lf), (%d, %d, %0.2lf), (%d, %d, %0.2lf)\n", xb, yb, zbs, xm, ym, zm, xt, yt, zt);
   double x0 = xb;
   double x1 = xb;
   double y0 = yb;
@@ -112,8 +112,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   double dz0 = (double)(zt - zbs) / (yt - yb);
   double dz1 = (double)(zm - zbs) / (ym - yb);
   double dz1_1 = (double)(zt - zm) / (yt - ym);
-  printf(" %0.2lf %0.2lf\n", dz0, dz1_1);
-  printf("(%0.2lf %0.2lf)\n", z0, z1);
+  // printf(" %0.2lf %0.2lf\n", dz0, dz1_1);
+  // printf("(%0.2lf %0.2lf)\n", z0, z1);
   if (y0 == ym){
     x1 = xm;
     dx1 = dx1_1;
