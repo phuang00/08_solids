@@ -22,8 +22,8 @@
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   color c;
   c.red = (i * 13 + 108) % 256;
-  c.green = (i * 27 + 58) % 256;
-  c.green = (i * 39 + 18) % 256;
+  c.blue = (i * 27 + 78) % 256;
+  c.green = (i * 35 + 18) % 256;
   int xt, yt, xm, ym, xb, yb;
   double zt, zm, zbs;
   int xs[3] = {points->m[0][i], points->m[0][i+1],points->m[0][i+2]};
